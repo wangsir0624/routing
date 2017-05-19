@@ -224,6 +224,17 @@ class RouteCollection
 
         if (isset($this->staticRoutes[$method][$path])) {
             return $this->activeRoute = $this->staticRoutes[$method][$path];
+        } else {
+            $possiblePath = $path;
+            if ('/' === substr($possiblePath, -1)) {
+                $possiblePath = rtrim($possiblePath, '/');
+            } else {
+                $possiblePath .= '/';
+            }
+            if (isset($this->staticRoutes[$method][$possiblePath])) {
+                return $this->activeRoute = $this->staticRoutes[$method][$possiblePath];
+            }
+            unset($possiblePath);
         }
 
         return $this->activeRoute = $this->matchDynamicRoute($serverRequest, $method, $path);

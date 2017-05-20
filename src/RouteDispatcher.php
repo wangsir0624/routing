@@ -10,6 +10,7 @@
 namespace FastD\Routing;
 
 
+use Exception;
 use FastD\Middleware\Dispatcher;
 use FastD\Middleware\MiddlewareInterface;
 use FastD\Routing\Exceptions\RouteException;
@@ -72,29 +73,42 @@ class RouteDispatcher extends Dispatcher
      */
     public function callMiddleware(Route $route, ServerRequestInterface $request)
     {
+        $prototypeStack = clone $this->stack;
+
         // set middleware list
         foreach ($route->getMiddleware() as $middleware) {
             if ($middleware instanceof MiddlewareInterface) {
                 $this->before($middleware);
-            } else if (is_string($middleware)) {
-                if (!isset($this->definition[$middleware])) {
-                    throw new \LogicException(sprintf('Middleware %s is not defined.'));
-                }
-                $definition = $this->definition[$middleware];
-                if (is_array($definition)) {
-                    foreach ($definition as $value) {
-                        $this->before(is_string($value) ? new $value : $value);
+            } else {
+                if (is_string($middleware)) {
+                    if ( ! isset($this->definition[$middleware])) {
+                        throw new \LogicException(sprintf('Middleware %s is not defined.'));
+                    }
+                    $definition = $this->definition[$middleware];
+                    if (is_array($definition)) {
+                        foreach ($definition as $value) {
+                            $this->before(is_string($value) ? new $value : $value);
+                        }
+                    } else {
+                        $this->before(is_string($definition) ? new $definition : $definition);
                     }
                 } else {
-                    $this->before(is_string($definition) ? new $definition : $definition);
+                    throw new RouteException(sprintf('Don\'t support %s middleware', gettype($middleware)));
                 }
-            } else {
-                throw new RouteException(sprintf('Don\'t support %s middleware', gettype($middleware)));
             }
         }
         // wrapper route middleware
         $this->before(new RouteMiddleware($route));
 
-        return parent::dispatch($request);
+        try {
+            $response = parent::dispatch($request);
+            $this->stack = $prototypeStack;
+            unset($prototypeStack);
+        } catch (Exception $exception) {
+            $this->stack = $prototypeStack;
+            unset($prototypeStack);
+            throw $exception;
+        }
+        return $response;
     }
 }

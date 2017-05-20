@@ -16,6 +16,6 @@ use FastD\Middleware\Middleware;
  * Interface ResourceInterface
  * @package FastD\Routing
  */
-abstract class ResourceInterface extends Middleware
+abstract class AbstractResource extends Middleware
 {
 }

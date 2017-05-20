@@ -1,6 +1,6 @@
 <?php
 use FastD\Middleware\DelegateInterface;
-use FastD\Routing\Resource\ResourceInterface;
+use FastD\Routing\Resource\AbstractResource;
 use FastD\Routing\Route;
 use FastD\Routing\RouteMiddleware;
 use Psr\Http\Message\ServerRequestInterface;

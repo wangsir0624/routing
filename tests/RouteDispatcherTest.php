@@ -17,10 +17,11 @@ class RouteDispatcherTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        include_once __DIR__ . '/middleware/AfterMiddleware.php';
-        include_once __DIR__ . '/middleware/BreakerMiddleware.php';
-        include_once __DIR__ . '/middleware/BeforeMiddleware.php';
-        include_once __DIR__ . '/middleware/DefaultMiddleware.php';
+        include_once __DIR__.'/middleware/AfterMiddleware.php';
+        include_once __DIR__.'/middleware/BreakerMiddleware.php';
+        include_once __DIR__.'/middleware/BeforeMiddleware.php';
+        include_once __DIR__.'/middleware/DefaultMiddleware.php';
+        include_once __DIR__.'/middleware/GlobalMiddleware.php';
     }
 
     public function testDispatcher()
@@ -29,10 +30,12 @@ class RouteDispatcherTest extends PHPUnit_Framework_TestCase
         $routeCollection->get('/', function (ServerRequest $request, Delegate $delegate) {
             echo 'hello world';
         })->withMiddleware('default');
-        $dispatcher = new RouteDispatcher($routeCollection, ['default' => [
-            new BeforeMiddleware(),
-            new AfterMiddleware(),
-        ]]);
+        $dispatcher = new RouteDispatcher($routeCollection, [
+            'default' => [
+                new BeforeMiddleware(),
+                new AfterMiddleware(),
+            ],
+        ]);
         $dispatcher->dispatch(new ServerRequest('GET', '/'));
         $this->expectOutputString(<<<EOF
 before
@@ -46,7 +49,7 @@ EOF
     {
         $routeCollection = new RouteCollection();
         $routeCollection->get('/{name}', function (ServerRequest $request, Delegate $delegate) {
-            echo 'hello ' . $request->getAttribute('name');
+            echo 'hello '.$request->getAttribute('name');
         });
         $dispatcher = new RouteDispatcher($routeCollection);
         $dispatcher->dispatch(new ServerRequest('GET', '/foo'));
@@ -58,7 +61,7 @@ EOF
         $routeCollection = new RouteCollection();
 
         $routeCollection->get('/{name}', function (ServerRequest $request, Delegate $delegate) {
-            return new Response('hello ' . $request->getAttribute('name'));
+            return new Response('hello '.$request->getAttribute('name'));
         })->withAddMiddleware(new BreakerMiddleware());
 
         $dispatcher = new RouteDispatcher($routeCollection);
@@ -73,12 +76,11 @@ EOF
         $routeCollection = new RouteCollection();
         $routeCollection
             ->get('/{name}', function (ServerRequest $request, Delegate $delegate) {
-                return new Response('hello ' . $request->getAttribute('name'));
+                return new Response('hello '.$request->getAttribute('name'));
             })
             ->withAddMiddleware(new AfterMiddleware())
             ->withAddMiddleware(new BeforeMiddleware())
-            ->withAddMiddleware(new DefaultMiddleware())
-        ;
+            ->withAddMiddleware(new DefaultMiddleware());
         $dispatcher = new RouteDispatcher($routeCollection);
         $dispatcher->dispatch(new ServerRequest('GET', '/foo'));
         $this->expectOutputString(<<<EOF
@@ -86,7 +88,7 @@ after
 before
 default
 EOF
-);
+        );
     }
 
     public function testDispatcherCollectionGroupMiddleware()
@@ -94,13 +96,15 @@ EOF
         $routeCollection = new RouteCollection();
         $routeCollection->group('/foo', function (RouteCollection $routeCollection) {
             $routeCollection->get('/{name}', function (ServerRequest $request) {
-                echo 'hello ' . $request->getAttribute('name');
+                echo 'hello '.$request->getAttribute('name');
             });
         }, ['default']);
-        $dispatcher = new RouteDispatcher($routeCollection, ['default' => [
-            new BeforeMiddleware(),
-            new AfterMiddleware(),
-        ]]);
+        $dispatcher = new RouteDispatcher($routeCollection, [
+            'default' => [
+                new BeforeMiddleware(),
+                new AfterMiddleware(),
+            ],
+        ]);
         $dispatcher->dispatch(new ServerRequest('GET', '/foo/bar'));
         $this->expectOutputString(<<<EOF
 before
@@ -108,5 +112,52 @@ after
 hello bar
 EOF
         );
+    }
+
+    public function testMultipleDispatchWithGlobalMiddleware()
+    {
+        $routeCollection = new RouteCollection();
+        $routeCollection->group('/demo',
+            function (RouteCollection $routeCollection) {
+                $routeCollection->get('/man', function (ServerRequest $request, Delegate $delegate) {
+                    echo "";
+                });
+                $routeCollection->get('/{name}', function (ServerRequest $request, Delegate $delegate) {
+                    echo 'hello '.$request->getAttribute('name').PHP_EOL;
+                });
+            }, ['default']);
+        $dispatcher = new RouteDispatcher($routeCollection, [
+            'default' => [
+                new BeforeMiddleware(),
+                new AfterMiddleware(),
+            ],
+        ]);
+        $dispatcher->before(new GlobalMiddleware());
+        $dispatcher->dispatch(new ServerRequest('GET', '/demo/world'));
+        $this->expectOutputString(<<<EOF
+global
+before
+after
+hello world
+
+EOF
+        );
+
+
+        $dispatcher->dispatch(new ServerRequest('GET', '/demo/world'));
+        $this->expectOutputString(<<<EOF
+global
+before
+after
+hello world
+global
+before
+after
+hello world
+
+EOF
+        );
+
+
     }
 }

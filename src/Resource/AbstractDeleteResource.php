@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Class AbstractDeleteResource
  * @package FastD\Routing\Resource
  */
-abstract class AbstractDeleteResource extends ResourceInterface
+abstract class AbstractDeleteResource extends AbstractResource
 {
     /**
      * @param ServerRequestInterface $request

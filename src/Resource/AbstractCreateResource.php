@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Class AbstractCreateResource
  * @package FastD\Routing\Resource
  */
-abstract class AbstractCreateResource extends ResourceInterface
+abstract class AbstractCreateResource extends AbstractResource
 {
     /**
      * @param ServerRequestInterface $request

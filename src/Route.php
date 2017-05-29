@@ -35,18 +35,16 @@ class Route extends RouteRegex
     /**
      * @var array
      */
-    protected $middleware = [
-
-    ];
+    protected $middleware = [];
 
     /**
      * Route constructor.
      *
      * @param string $method
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $class
      */
-    public function __construct($method, $path, $callback)
+    public function __construct(string $method, string $path, string $class)
     {
         parent::__construct($path);
 

@@ -1,11 +1,12 @@
 <?php
+use FastD\Routing\Resource\AbstractResource;
 
 /**
  * @author: RunnerLee
  * @email: runnerleer@gmail.com
  * @time: 2017-05
  */
-class GlobalMiddleware extends \FastD\Middleware\Middleware
+class GlobalMiddleware extends AbstractResource
 {
     /**
      * @param \Psr\Http\Message\ServerRequestInterface $serverRequest

@@ -10,7 +10,6 @@
 namespace FastD\Routing;
 
 
-use FastD\Http\Response;
 use FastD\Middleware\DelegateInterface;
 use FastD\Middleware\Middleware;
 use Psr\Http\Message\ResponseInterface;
@@ -41,29 +40,15 @@ class RouteMiddleware extends Middleware
      * @param DelegateInterface $next
      * @return ResponseInterface
      */
-    public function handle(ServerRequestInterface $request, DelegateInterface $next = null)
+    public function handle(ServerRequestInterface $request, DelegateInterface $next = null): ResponseInterface
     {
-        if (is_string(($callback = $this->route->getCallback()))) {
-            if (false !== strpos($callback, '@')) {
-                list($class, $method) = explode('@', $callback);
-            } else {
-                $class = $callback;
-                $method = 'process';
-            }
-            $response = call_user_func_array([new $class, $method], [$request, $next]);
-        } else if (is_callable($callback)) {
-            $response = call_user_func_array($callback, [$request, $next]);
-        } else if (is_array($callback)) {
-            $class = $callback[0];
-            if (is_string($class)) {
-                $class = new $class;
-            }
-            $response = call_user_func_array([$class, $callback[1]], [$request, $next]);
+        $callback = $this->route->getCallback();
+        if (false !== strpos($callback, '@')) {
+            list($class, $method) = explode('@', $callback);
         } else {
-            $response = new Response('Don\'t support callback, Please setting callable function or class@method.');
+            $class = $callback;
+            $method = 'process';
         }
-        unset($callback);
-
-        return $response;
+        return call_user_func_array([new $class, $method], [$request, $next]);
     }
 }

@@ -13,29 +13,29 @@ class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testStaticRoute()
     {
-        $route = new Route('GET', '/test', []);
+        $route = new Route('GET', '/test');
         $this->assertEquals('GET', $route->getMethod());
         $this->assertEquals('/test', $route->getPath());
         $this->assertEmpty($route->getParameters());
-        $this->assertNull($route->getRegex());
+        $this->assertEmpty($route->getRegex());
     }
 
     public function testDynamicRouteRequireVariables()
     {
-        $route = new Route('GET', '/users/{name}', []);
+        $route = new Route('GET', '/users/{name}');
         $regex = '~^(' . $route->getRegex() . ')$~';
         $this->assertRegExp($regex, '/users/10');
     }
 
     public function testRouteIsStatic()
     {
-        $route = new Route('GET', '/foo/*', []);
+        $route = new Route('GET', '/foo/*');
         $this->assertFalse($route->isStatic());
     }
 
     public function testRouteFuzzyMatching()
     {
-        $route = new Route('GET', '/foo/*', []);
+        $route = new Route('GET', '/foo/*');
         $regex = '~^(' . $route->getRegex() . ')$~';
         $this->assertRegExp($regex, '/foo/10');
         $this->assertRegExp($regex, '/foo/bar');

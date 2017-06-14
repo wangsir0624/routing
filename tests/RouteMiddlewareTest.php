@@ -13,6 +13,19 @@ use FastD\Middleware\Delegate;
 use FastD\Routing\Route;
 use FastD\Routing\RouteMiddleware;
 
+class Callback extends FastD\Routing\Resource\AbstractResource {
+
+    /**
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \FastD\Middleware\DelegateInterface $next
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request, \FastD\Middleware\DelegateInterface $next)
+    {
+        return (new Response())->withContent('hello');
+    }
+}
+
 class RouteMiddlewareTest extends PHPUnit_Framework_TestCase
 {
     protected $response;
@@ -28,9 +41,7 @@ class RouteMiddlewareTest extends PHPUnit_Framework_TestCase
 
     public function testRouteMiddleware()
     {
-        $middleware = new RouteMiddleware(new Route('GET', '/', function (ServerRequest $request) {
-            return $this->response()->withContent('hello');
-        }));
+        $middleware = new RouteMiddleware(new Route('GET', '/', 'Callback'));
 
         $response = $middleware->process(new ServerRequest('GET', '/'), new Delegate(function () {
 

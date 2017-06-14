@@ -42,12 +42,12 @@ REGEX;
     /**
      * @var string
      */
-    protected $regex;
+    protected $regex = '';
 
     /**
      * @var null
      */
-    protected $path;
+    protected $path = '';
 
     /**
      * @var bool
@@ -59,7 +59,7 @@ REGEX;
      *
      * @param string $path
      */
-    public function __construct($path)
+    public function __construct(string $path)
     {
         $this->parseRoute($path);
     }
@@ -67,7 +67,7 @@ REGEX;
     /**
      * @return bool
      */
-    public function isStatic()
+    public function isStatic(): bool
     {
         return $this->isStatic;
     }
@@ -75,7 +75,7 @@ REGEX;
     /**
      * @return array
      */
-    public function getRequirements()
+    public function getRequirements(): array
     {
         return $this->requirements;
     }
@@ -83,7 +83,7 @@ REGEX;
     /**
      * @return string
      */
-    public function getRegex()
+    public function getRegex(): string
     {
         return $this->regex;
     }
@@ -91,15 +91,15 @@ REGEX;
     /**
      * @return array
      */
-    public function getVariables()
+    public function getVariables(): array
     {
         return $this->variables;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -108,7 +108,7 @@ REGEX;
      * @param string $path
      * @return string
      */
-    protected function parseRoute($path)
+    protected function parseRoute(string $path): string
     {
         if ('/' !== $path) {
             $path = rtrim($path, '/');

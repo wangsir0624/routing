@@ -1,6 +1,6 @@
 <?php
 use FastD\Http\Response;
-use FastD\Middleware\Middleware;
+use FastD\Routing\Resource\AbstractResource;
 
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -9,7 +9,7 @@ use FastD\Middleware\Middleware;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class BreakerMiddleware extends Middleware
+class BreakerMiddleware extends AbstractResource
 {
     /**
      * @param \Psr\Http\Message\ServerRequestInterface $serverRequest

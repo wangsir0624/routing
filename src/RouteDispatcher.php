@@ -9,7 +9,7 @@
 
 namespace FastD\Routing;
 
-
+use RuntimeException;
 use Exception;
 use FastD\Middleware\Dispatcher;
 use FastD\Middleware\MiddlewareInterface;
@@ -22,6 +22,8 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class RouteDispatcher extends Dispatcher
 {
+    public $route;
+
     /**
      * @var RouteCollection
      */
@@ -36,23 +38,15 @@ class RouteDispatcher extends Dispatcher
      * RouteDispatcher constructor.
      *
      * @param RouteCollection $routeCollection
-     * @param MiddlewareInterface[] $definition
+     * @param $definition
      */
-    public function __construct(RouteCollection $routeCollection, array $definition = [])
+    public function __construct(RouteCollection $routeCollection, $definition = [])
     {
         $this->routeCollection = $routeCollection;
 
         $this->definition = $definition;
 
-        parent::__construct();
-    }
-
-    /**
-     * @return RouteCollection
-     */
-    public function getCollection()
-    {
-        return $this->routeCollection;
+        parent::__construct([]);
     }
 
     /**
@@ -70,45 +64,37 @@ class RouteDispatcher extends Dispatcher
      * @param Route $route
      * @param ServerRequestInterface $request
      * @return \Psr\Http\Message\ResponseInterface
+     * @throws Exception
      */
     public function callMiddleware(Route $route, ServerRequestInterface $request)
     {
-        $prototypeStack = clone $this->stack;
+        $stack = clone $this->stack;
 
-        // set middleware list
         foreach ($route->getMiddleware() as $middleware) {
             if ($middleware instanceof MiddlewareInterface) {
                 $this->before($middleware);
-            } else {
-                if (is_string($middleware)) {
-                    if ( ! isset($this->definition[$middleware])) {
-                        throw new \LogicException(sprintf('Middleware %s is not defined.'));
-                    }
-                    $definition = $this->definition[$middleware];
-                    if (is_array($definition)) {
-                        foreach ($definition as $value) {
-                            $this->before(is_string($value) ? new $value : $value);
-                        }
-                    } else {
-                        $this->before(is_string($definition) ? new $definition : $definition);
+            } else if (is_string($middleware)) {
+                if (!isset($this->definition[$middleware])) {
+                    throw new RuntimeException(sprintf('Middleware %s is not defined.'));
+                }
+                $definition = $this->definition[$middleware];
+                if (is_array($definition)) {
+                    foreach ($definition as $value) {
+                        $this->before(is_string($value) ? new $value : $value);
                     }
                 } else {
-                    throw new RouteException(sprintf('Don\'t support %s middleware', gettype($middleware)));
+                    $this->before(is_string($definition) ? new $definition : $definition);
                 }
+            } else {
+                throw new RouteException(sprintf('Don\'t support %s middleware', gettype($middleware)));
             }
         }
+
         // wrapper route middleware
         $this->before(new RouteMiddleware($route));
 
-        try {
-            $response = parent::dispatch($request);
-            $this->stack = $prototypeStack;
-            unset($prototypeStack);
-        } catch (Exception $exception) {
-            $this->stack = $prototypeStack;
-            unset($prototypeStack);
-            throw $exception;
-        }
-        return $response;
+        $this->stack = $stack;
+        unset($prototypeStack);
+        return parent::dispatch($request);
     }
 }

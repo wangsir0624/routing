@@ -67,12 +67,12 @@ class RouteCollection
     protected $regexes = [];
 
     /**
-     * @param          $prefix
+     * @param string $prefix
      * @param callable $callback
-     * @param mixed $middleware
-     * @return $this
+     * @param array $middleware
+     * @return RouteCollection
      */
-    public function group($prefix, callable $callback, $middleware = [])
+    public function group(string $prefix, callable $callback, array $middleware = []): RouteCollection
     {
         $this->middleware = $middleware;
 
@@ -88,67 +88,67 @@ class RouteCollection
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function get($path, $callback, $middleware = [])
+    public function get(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('GET', $path, $callback)->withAddMiddleware($middleware);
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function post($path, $callback, $middleware = [])
+    public function post(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('POST', $path, $callback)->withAddMiddleware($middleware);
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function put($path, $callback, $middleware = [])
+    public function put(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('PUT', $path, $callback)->withAddMiddleware($middleware);
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function delete($path, $callback, $middleware = [])
+    public function delete(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('DELETE', $path, $callback)->withAddMiddleware($middleware);
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function head($path, $callback, $middleware = [])
+    public function head(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('HEAD', $path, $callback)->withAddMiddleware($middleware);
     }
 
     /**
-     * @param $path
-     * @param $callback
+     * @param string $path
+     * @param string $callback
      * @param array $middleware
      * @return Route
      */
-    public function patch($path, $callback, $middleware = [])
+    public function patch(string $path, string $callback = '', array $middleware = []): Route
     {
         return $this->addRoute('PATCH', $path, $callback)->withAddMiddleware($middleware);
     }
@@ -156,29 +156,29 @@ class RouteCollection
     /**
      * @return Route
      */
-    public function getActiveRoute()
+    public function getActiveRoute(): Route
     {
         return $this->activeRoute;
     }
 
     /**
-     * @param $method
-     * @param $path
-     * @param $callback
+     * @param string $method
+     * @param string $path
+     * @param string $callback
      * @return Route
      */
-    public function createRoute($method, $path, $callback)
+    public function createRoute(string $method, string $path, string $callback = ''): Route
     {
         return new Route($method, $path, $callback);
     }
 
     /**
-     * @param $method
-     * @param $path
-     * @param $callback
+     * @param string $method
+     * @param string $path
+     * @param string $callback
      * @return Route
      */
-    public function addRoute($method, $path, $callback)
+    public function addRoute(string $method, string $path, string $callback = ''): Route
     {
         $path = implode('/', $this->with) . $path;
 
@@ -213,7 +213,7 @@ class RouteCollection
      * @return Route
      * @throws RouteNotFoundException
      */
-    public function match(ServerRequestInterface $serverRequest)
+    public function match(ServerRequestInterface $serverRequest): Route
     {
         $method = $serverRequest->getMethod();
         $path = $serverRequest->getUri()->getPath();
@@ -245,9 +245,9 @@ class RouteCollection
      * @param ServerRequestInterface $serverRequest
      * @param string $method
      * @param string $path
-     * @return bool|Route
+     * @return Route
      */
-    protected function matchDynamicRoute(ServerRequestInterface $serverRequest, $method, $path)
+    protected function matchDynamicRoute(ServerRequestInterface $serverRequest, $method, $path): Route
     {
         if (isset($this->dynamicRoutes[$method])) {
             foreach ($this->dynamicRoutes[$method] as $data) {

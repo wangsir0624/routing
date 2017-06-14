@@ -25,7 +25,7 @@ abstract class AbstractCreateResource extends AbstractResource
      * @param DelegateInterface $next
      * @return ResponseInterface
      */
-    public function process(ServerRequestInterface $request, DelegateInterface $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $next): ResponseInterface
     {
         return parent::process($request, $next)->withStatus(201);
     }

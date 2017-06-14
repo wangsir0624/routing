@@ -7,7 +7,7 @@
  * @see      https://www.github.com/janhuang
  * @see      http://www.fast-d.cn/
  */
-class Fuzzy extends \FastD\Routing\Resource\AbstractResource
+class CreatedHandler extends \FastD\Routing\Resource\AbstractCreateResource
 {
     /**
      * @param \Psr\Http\Message\ServerRequestInterface $request
@@ -16,6 +16,6 @@ class Fuzzy extends \FastD\Routing\Resource\AbstractResource
      */
     public function handle(\Psr\Http\Message\ServerRequestInterface $request, \FastD\Middleware\DelegateInterface $next)
     {
-        return new \FastD\Http\Response($request->getAttribute('path'));
+        return new \FastD\Http\Response('created');
     }
 }

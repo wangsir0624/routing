@@ -79,7 +79,7 @@ class RouteCollectionTest extends PHPUnit_Framework_TestCase
     {
         include_once __DIR__ . '/handlers/Fuzzy.php';
 
-        $this->collection->addRoute('GET', '/fuzzy/*', 'Fuzzy');
+        $this->collection->addRoute('GET', '/fuzzy/*', 'AttributeHandler');
 
         $request1 = new ServerRequest('GET', '/fuzzy/bar');
         $request2 = new ServerRequest('GET', '/fuzzy/foo/bar');
